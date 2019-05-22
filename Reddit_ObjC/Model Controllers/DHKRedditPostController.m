@@ -8,6 +8,7 @@
 
 #import "DHKRedditPostController.h"
 #import "DHKRedditPost.h"
+#import <UIKit/UIKit.h>
 
 static NSString * const baseURLString = @"http://www.reddit.com/.json";
 
@@ -60,7 +61,22 @@ static NSString * const baseURLString = @"http://www.reddit.com/.json";
 
 - (void)fetchImageForPost:(DHKRedditPost *)post completion:(void (^)(UIImage * _Nullable))completion
 {
+    NSURL *url = [NSURL URLWithString:post.thumbnail];
     
+    [[[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (error){
+            NSLog(@"%@", error.localizedDescription);
+            completion(nil);
+            return;
+        }
+        if (!data) {
+            NSLog(@"Data is missing for image");
+            completion(nil);
+            return;
+        }
+        UIImage *image = [UIImage imageWithData:data];
+        completion(image);
+    }] resume];
 }
 
 @end
